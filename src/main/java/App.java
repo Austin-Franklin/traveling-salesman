@@ -15,7 +15,7 @@ public class App {
 
         //graphhopper setup
         GraphHopper hopper = new GraphHopper();
-        hopper.setOSMFile("/home/adf/Downloads/export.osm");
+        hopper.setOSMFile("Pensacola.osm");
         hopper.setGraphHopperLocation("GH_folder");
         hopper.setProfiles(
             new Profile("car").setVehicle("car").setWeighting("fastest")
