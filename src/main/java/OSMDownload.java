@@ -7,6 +7,10 @@ import java.net.*;
  * Downloads an OSM XML file of 20km around <location> and stores it right next to wherever this is running
  */
 public class OSMDownload {
+    /**
+     * Will download a .osm file from overpass API, currently fixed location of 20km surrounding pensacola, fl
+     * @param location Right now just dictates the file name
+     */
     public static void osmFile(String location) {
         // String query = String.format(
         //     "[out:xml][timeout:25];\n" +
@@ -29,6 +33,8 @@ public class OSMDownload {
             [out:xml][timeout:25];(node["highway"]["maxspeed"](around:20000,30.421309,-87.2169149);way["highway"]["maxspeed"](around:20000,30.421309,-87.2169149);relation["highway"]["maxspeed"](around:20000,30.421309,-87.2169149);node["highway"="residential"](around:20000,30.421309,-87.2169149);way["highway"="residential"](around:20000,30.421309,-87.2169149);relation["highway"="residential"](around:20000,30.421309,-87.2169149);node["tiger:name_type"](around:20000,30.421309,-87.2169149);way["tiger:name_type"](around:20000,30.421309,-87.2169149);relation["tiger:name_type"](around:20000,30.421309,-87.2169149););(._;>;);out body;
                 """;
         try {
+            SpinnerThread spinThread = new SpinnerThread("Downloading graph data ");
+            spinThread.start();
             String url = "https://overpass-api.de/api/interpreter?data=" + URLEncoder.encode(query, "UTF-8");
             URLConnection conn = new URL(url).openConnection();
             conn.setRequestProperty("User-Agent", "Mozilla/5.0");
@@ -37,6 +43,8 @@ public class OSMDownload {
             is.transferTo(fos);
             fos.close();
             is.close();
+            spinThread.stop();
+            System.out.println("");
         } catch (Exception e) {
             e.printStackTrace();
         }

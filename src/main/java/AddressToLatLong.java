@@ -11,6 +11,14 @@ import com.graphhopper.reader.osm.Pair;
  * Calls OSM/Nominatim via internet for lat/lon of an address
  */
 public class AddressToLatLong {
+    /**
+     * 
+     * @param addressAddress as in<br/>
+     * <h5>11000 University Pkwy, Pensacola, FL 32514</h5><br/>
+     * or<br/>
+     * <h5>University of West Florida, Pensacola</h5>
+     * @return <lat, long>
+     */
     public static Pair<Double, Double> getFromOSM(String address) {
         try {
             String urlFormattedAddress = URLEncoder.encode(address, "UTF-8");
