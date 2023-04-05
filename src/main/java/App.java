@@ -1,8 +1,10 @@
 import java.io.File;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.graphhopper.*;
 import com.graphhopper.config.*;
+import com.graphhopper.util.shapes.GHPoint;
 
 public class App {
     public static void main(String[] args) {
@@ -30,8 +32,17 @@ public class App {
 
         LocationPoint UWF = new LocationPoint("University of West Florida, Pensacola");
         LocationPoint cordovaMall = new LocationPoint("Cordova Mall, Pensacola");
+        LocationPoint KPNS = new LocationPoint("Pensacola International Airport");
+
+        List<GHPoint> addressList= new ArrayList<GHPoint>();
+
+        addressList.add(UWF.getGHPoint());
+        addressList.add(cordovaMall.getGHPoint());
+        addressList.add(KPNS.getGHPoint());
+
+
         GHResponse response = hopper.route(
-            new GHRequest(UWF.getGHPoint(), cordovaMall.getGHPoint())
+            new GHRequest(addressList)
                 .setProfile("car")
         );
         if(response.hasErrors()) {
@@ -40,6 +51,6 @@ public class App {
                 System.err.println("An error occurred: " + error.getMessage());
             }
         }
-        System.out.println("" + response.getBest().getTime()/1000 + " seconds to go from UWF to Cordova Mall");
+        System.out.println("" + response.getBest().getTime()/1000 + " seconds to go from UWF to Cordova Mall to Pensacola International");
     }
 }
