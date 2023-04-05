@@ -33,16 +33,27 @@ public class App {
         LocationPoint UWF = new LocationPoint("University of West Florida, Pensacola");
         LocationPoint cordovaMall = new LocationPoint("Cordova Mall, Pensacola");
         LocationPoint KPNS = new LocationPoint("Pensacola International Airport");
+        LocationPoint wahoo = new LocationPoint("Blue Wahoos Stadium, Pensacola");
 
-        List<GHPoint> addressList= new ArrayList<GHPoint>();
+        ArrayList<LocationPoint> addressList= new ArrayList<LocationPoint>();
 
-        addressList.add(UWF.getGHPoint());
-        addressList.add(cordovaMall.getGHPoint());
-        addressList.add(KPNS.getGHPoint());
+        addressList.add(UWF);
+        addressList.add(cordovaMall);
+        addressList.add(KPNS);
+        addressList.add(wahoo);
 
+        //array of indicies for the addressList array
+        //we will convert addressList to GHPoints in this order
+        int[] orderOfEvaluation= {0,2,1,3}; 
+
+        ArrayList<GHPoint> GHPointList= new ArrayList<GHPoint>();
+
+        for(int i=0;i!=orderOfEvaluation.length;i++){
+            GHPointList.add(addressList.get(orderOfEvaluation[i]).getGHPoint());
+        }
 
         GHResponse response = hopper.route(
-            new GHRequest(addressList)
+            new GHRequest(GHPointList)
                 .setProfile("car")
         );
         if(response.hasErrors()) {
@@ -51,6 +62,11 @@ public class App {
                 System.err.println("An error occurred: " + error.getMessage());
             }
         }
-        System.out.println("" + response.getBest().getTime()/1000 + " seconds to go from UWF to Cordova Mall to Pensacola International");
+        System.out.print("" + response.getBest().getTime()/1000 + " seconds to go from ");
+
+        for(int i=0;i!=addressList.size();i++){
+            System.out.print(addressList.get(orderOfEvaluation[i]).getAddress()+" ");
+            if (i<addressList.size()-1) System.out.print("to ");
+        }
     }
 }
