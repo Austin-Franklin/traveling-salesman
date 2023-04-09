@@ -22,7 +22,7 @@ public class SpinnerThread {
                 while(repeat) {
                     System.out.print("\b" + characters[index]);
                     index = (index + 1) % 4;
-                    try{Thread.sleep(100);}catch(Exception e){repeat = false;};
+                    try{Thread.sleep(100);}catch(InterruptedException e){repeat = false;};
                 }
             }
         });
@@ -34,5 +34,6 @@ public class SpinnerThread {
 
     public void stop() {
         thread.interrupt();
+        System.out.print("\b" + "complete.");
     }
 }

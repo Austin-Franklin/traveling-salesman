@@ -26,12 +26,6 @@
         <groupId>com.graphhopper</groupId>
         <artifactId>graphhopper-core</artifactId>
         <version>7.0</version>
-      <!-- <exclusions>
-        <exclusion>
-          <artifactId>slf4j-api</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-      </exclusions> -->
     </dependency>
 
     <dependency>
