@@ -22,7 +22,6 @@ public class AnnealTaskManager {
 
     public void run() {
         spin.start();
-        ArrayList<AnnealTask> taskList = new ArrayList<>();
         for (AnnealTask task : taskList) {
             executor.submit(task);
         }
