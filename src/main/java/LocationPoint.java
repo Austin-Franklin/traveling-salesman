@@ -26,6 +26,15 @@ public class LocationPoint extends GHPoint{
         this.lon = latLongPair.second;
     }
 
+    public LocationPoint(double lat, double lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
+
+    public GHPoint getGHPoint() {
+        return new GHPoint(lat, lon);
+    }
+
     public String getAddress() {
         return address;
     }
