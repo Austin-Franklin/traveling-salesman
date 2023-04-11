@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
-public class AnnealTaskManager {
+public class AnnealTaskThreadDirector {
     private ExecutorService executor;
     private ArrayList<AnnealTask> taskList;
     private SpinnerThread spin = new SpinnerThread("Running route optimization");
@@ -12,7 +12,7 @@ public class AnnealTaskManager {
      * @param threadPoolSize How many threads to be taken up at one time
      * @param totalThreads How many runs of AnnealTask object to be ran
      */
-    public AnnealTaskManager (AnnealTask annealTask, int threadPoolSize, int totalThreads) {
+    public AnnealTaskThreadDirector (AnnealTask annealTask, int threadPoolSize, int totalThreads) {
         executor = Executors.newFixedThreadPool(threadPoolSize);
         taskList = new ArrayList<>();
         for (int i = 0; i < totalThreads; ++ i) {
@@ -33,14 +33,11 @@ public class AnnealTaskManager {
         spin.stop();
     }
 
-    public ArrayList<LocationPoint> getBestOrder() {
-        long bestTime = Long.MAX_VALUE;
-        ArrayList<LocationPoint> bestPath = null;
-        for (AnnealTask task : taskList) {
-            if (task.getBestTime() < bestTime) {
-                bestPath = task.getBestOrder();
-            }
-        }
-        return bestPath;
+    public ArrayList<AnnealTask> getBestRuns(int amount) {
+        //sort to get best time
+        taskList.sort((a, b) -> Double.compare(a.getBestTime(), b.getBestTime()));
+        
+        //map to path
+        return (ArrayList<AnnealTask>) taskList.subList(0, amount);
     }
 }

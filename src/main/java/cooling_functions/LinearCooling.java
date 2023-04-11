@@ -18,4 +18,8 @@ public class LinearCooling implements CoolingFunction {
         return temp;
     }
 
+    @Override
+    public LinearCooling clone()  {
+        return this.clone();
+    }
 }

@@ -15,8 +15,7 @@ public class AnnealTask implements Runnable, Cloneable {
     private GraphHopper hopper;
     //held for copying
     private ArrayList<LocationPoint> originalStopList;
-    //start/stop point
-    private LocationPoint home;
+    //internally used
     private ArrayList<LocationPoint> stopList;
     private int maxRuns;
     private int runs = 0;
@@ -28,32 +27,29 @@ public class AnnealTask implements Runnable, Cloneable {
     /**
      * 
      * @param hopper Hopefully it doesnt break with multithreading
-     * @param stopList This is deep copied in the constructor
-     * @param home Your start/end location
+     * @param stopList This is deep copied in the constructor. First element is implied to be home and actor returns to home
      * @param maxRuns Max iterations
      * @param cooling either make a new or clone
+     * @param boltzmannFactor scaling factor for the temperature. in reality it is a universal constant. here its whatever you want.
      */
-    public AnnealTask(GraphHopper hopper, ArrayList<LocationPoint> stopList, LocationPoint home, int maxRuns, CoolingFunction cooling, double boltzmannFactor) {
+    public AnnealTask(GraphHopper hopper, ArrayList<LocationPoint> stopList, int maxRuns, CoolingFunction cooling, double boltzmannFactor) {
         this.hopper = hopper;
         this.originalStopList = stopList;
-        this.home = home;
 
         //deep copy because the list<locationpoint> is mutated
-        this.stopList = new ArrayList<>();
-        this.stopList.add(home); //start point
-        for (LocationPoint point : stopList)
-            this.stopList.add(point);
-        this.stopList.add(home); //returning home
+        this.stopList = new ArrayList<>(stopList);
+        this.stopList.add(stopList.get(0)); //returning home
 
         this.maxRuns = maxRuns;
-        this.cooling = cooling;
+        this.cooling = cooling.clone();
         this.boltzmannFactor = boltzmannFactor;
     }
 
     @Override
     public void run() {
-        //basically casts, points to the same data
-        ArrayList<GHPoint> ghList = new ArrayList<>(stopList);
+        //this pains me
+        @SuppressWarnings("unchecked")
+        ArrayList<GHPoint> ghList = (ArrayList<GHPoint>) (ArrayList<? extends GHPoint>) stopList;
         
         GHRequest request = new GHRequest(ghList)
             .setProfile("car")
@@ -68,8 +64,9 @@ public class AnnealTask implements Runnable, Cloneable {
 
         while(runs <= maxRuns) {
             //swap two entries to test if total time goes down
-            int swapIndex1 = random.nextInt(stopList.size());
-            int swapIndex2 = random.nextInt(stopList.size());
+            //the -2 removes the fixed start and stop, +1 shifts it
+            int swapIndex1 = random.nextInt(stopList.size() - 2) + 1;
+            int swapIndex2 = random.nextInt(stopList.size() - 2) + 1;
             Collections.swap(stopList, swapIndex1, swapIndex2);
             
             request.setPoints(ghList);
@@ -110,7 +107,11 @@ public class AnnealTask implements Runnable, Cloneable {
      * @return Best order this thread can come up with, CAN BE NULL!
      */
     public ArrayList<LocationPoint> getBestOrder() {
-        return finished ? stopList : null;
+        if (!finished) return null;
+        //remove stop
+        ArrayList<LocationPoint> retArray = new ArrayList<>(stopList);
+        retArray.remove(retArray.size() - 1);
+        return retArray;
     }
 
     public double getBestTime() {
@@ -118,6 +119,6 @@ public class AnnealTask implements Runnable, Cloneable {
     }
 
     public AnnealTask copy() {
-        return new AnnealTask(hopper, originalStopList, home, maxRuns, cooling, boltzmannFactor);
+        return new AnnealTask(hopper, originalStopList, maxRuns, cooling, boltzmannFactor);
     }
 }

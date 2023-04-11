@@ -20,5 +20,8 @@ public class ExponentialCooling implements CoolingFunction {
         return temp;
     }
 
-    
+    @Override
+    public ExponentialCooling clone()  {
+        return this.clone();
+    }
 }
