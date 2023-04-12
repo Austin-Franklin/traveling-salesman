@@ -22,10 +22,14 @@ public class AnnealTaskManager {
 
     public void run() {
         spin.start();
-        ArrayList<AnnealTask> taskList = new ArrayList<>();
+        //ArrayList<AnnealTask> taskList = new ArrayList<>();
         for (AnnealTask task : taskList) {
             executor.submit(task);
         }
+    }
+
+    public void join() throws InterruptedException{
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
     }
 
     public void stop() throws InterruptedException {

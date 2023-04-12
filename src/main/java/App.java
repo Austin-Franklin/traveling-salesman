@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.graphhopper.*;   
 import com.graphhopper.config.*;
+//import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint;
 
 import cooling_functions.LinearCooling;
@@ -51,11 +52,11 @@ public class App {
 
         addressList.add(cordovaMall);
         addressList.add(KPNS);
+        addressList.add(pickens);
         addressList.add(oliveBaptist);
         addressList.add(wahoo);
         addressList.add(civicCenter);
         addressList.add(pier);
-        addressList.add(pickens);
         addressList.add(fair);
 
 /* 
@@ -83,35 +84,57 @@ public class App {
 
 */
 
-        LinearCooling coolFn = new LinearCooling(200, .001);
+        LinearCooling coolFn = new LinearCooling(100, .25);
         AnnealTask task = new AnnealTask(hopper, addressList, UWF, 100, coolFn, 0.05);
-        
+        AnnealTaskManager taskMan = new AnnealTaskManager(task, 4, 100);
+        //Thread thread = new Thread(taskMan);
+
         try {
-            
-            SpinnerThread spinThread = new SpinnerThread("Calculating Optimal Route");
-            spinThread.start();
-           
-            task.run();
-
-            while(!task.isFinished()){ //This is a jankey, fast solution. I'm sure you know a better one
-            int i=0;
-            }
-
-            spinThread.stop();
+        
+            taskMan.run();
+            taskMan.stop();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        ArrayList<LocationPoint> bestOrder= taskMan.getBestOrder();
+        ArrayList<GHPoint> finalOrder= new ArrayList<GHPoint>();
 
-
-        ArrayList<LocationPoint> finalOrder= task.getBestOrder();
-      
-        System.out.print("\n\n" + task.getBestTime()/1000 + " seconds to go from ");
-
-        for(int i=0;i!=finalOrder.size();i++){
-            System.out.print(finalOrder.get(i).getAddress()+" ");
-            if (i<addressList.size()-1) System.out.print("to ");
+        for(int i=0;i<taskMan.getBestOrder().size();i++){
+            finalOrder.add(taskMan.getBestOrder().get(i));
         }
+
+        GHResponse response = hopper.route(
+            new GHRequest(finalOrder)
+                .setProfile("car")
+        );
+
+        if(response.hasErrors()) {
+            List<Throwable> errors = response.getErrors();
+            for (Throwable error : errors) {
+                System.err.println("An error occurred: " + error.getMessage());
+            }
+        }
+
+
+        System.out.print("\n\n" + response.getBest().getTime()/60000 + " minutes to go from ");
+
+
+        for(int i=0;i!=bestOrder.size();i++){
+            if(bestOrder.get(i).getAddress().contains(",")){
+            
+                System.out.print(bestOrder.get(i).getAddress().subSequence(0, 
+                bestOrder.get(i).getAddress().indexOf(",")));
+                if (i<bestOrder.size()-1) System.out.print(", to ");
+                
+            }
+            else{
+                System.out.print(bestOrder.get(i).getAddress());
+                if (i<bestOrder.size()-1) System.out.print(", to ");
+            }
+        }
+
+
     }
 }
