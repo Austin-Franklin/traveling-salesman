@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import com.graphhopper.*;   
 import com.graphhopper.config.*;
-//import com.graphhopper.util.shapes.GHPoint;
 import com.graphhopper.util.shapes.GHPoint;
 
 import cooling_functions.LinearCooling;
@@ -84,9 +83,9 @@ public class App {
 
 */
 
-        LinearCooling coolFn = new LinearCooling(100, .25);
-        AnnealTask task = new AnnealTask(hopper, addressList, UWF, 100, coolFn, 0.05);
-        AnnealTaskManager taskMan = new AnnealTaskManager(task, 4, 100);
+        LinearCooling coolFn = new LinearCooling(4000, 3.5);
+        AnnealTask task = new AnnealTask(hopper, addressList, UWF, 1000, coolFn, 1e10);
+        AnnealTaskManager taskMan = new AnnealTaskManager(task, 7, 10);
         //Thread thread = new Thread(taskMan);
 
         try {

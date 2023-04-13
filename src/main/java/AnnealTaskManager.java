@@ -28,10 +28,6 @@ public class AnnealTaskManager {
         }
     }
 
-    public void join() throws InterruptedException{
-        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-    }
-
     public void stop() throws InterruptedException {
         executor.shutdown();
         executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);

@@ -53,7 +53,8 @@ public class AnnealTask implements Runnable, Cloneable {
     @Override
     public void run() {
         //basically casts, points to the same data
-        ArrayList<GHPoint> ghList = new ArrayList<>(stopList);
+        @SuppressWarnings("unchecked")
+        ArrayList<GHPoint> ghList = (ArrayList<GHPoint>) (ArrayList<?>) stopList;
         
         GHRequest request = new GHRequest(ghList)
             .setProfile("car")
@@ -118,6 +119,9 @@ public class AnnealTask implements Runnable, Cloneable {
     }
 
     public AnnealTask copy() {
+        
+        Collections.shuffle(originalStopList);
+
         return new AnnealTask(hopper, originalStopList, home, maxRuns, cooling, boltzmannFactor);
     }
 }
