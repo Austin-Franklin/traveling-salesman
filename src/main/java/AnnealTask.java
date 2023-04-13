@@ -98,6 +98,11 @@ public class AnnealTask implements Runnable, Cloneable {
         finished = true;
     }
 
+    public void setPath(ArrayList<LocationPoint> newPath) {
+        this.stopList = new ArrayList<>(newPath);
+        this.originalStopList = newPath;
+    }
+
     public boolean isFinished() {
         return finished;
     }
