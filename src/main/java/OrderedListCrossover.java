@@ -52,7 +52,7 @@ public class OrderedListCrossover<T> {
                 new HashSet<>(
                     List.of(
                         orderedList.get(
-                            i - 1 > 0 ? i - 1 : i - 1 + size //wrap around from start to back
+                            i - 1 < 0 ? size - 1 : i - 1
                         ),
                         orderedList.get(
                             (i + 1) % size
@@ -91,9 +91,9 @@ public class OrderedListCrossover<T> {
         //return array
         ArrayList<T> crossed = new ArrayList<>();
         T nextNode = firstNode;
+        crossed.add(nextNode);
+        unvisited.remove(nextNode);
         while (size > crossed.size()) {
-            crossed.add(nextNode);
-            unvisited.remove(nextNode);
             //remove nextNode from being a neighbor
             final T workAround = nextNode; //some weird workaround for java not liking v.remove(nextNode)
             copyAdjList.forEach((k, v) -> {
@@ -103,11 +103,11 @@ public class OrderedListCrossover<T> {
             if (copyAdjList.get(nextNode).size() != 0) {
                 ArrayList<Pair<T, Integer>> neighborSizes = new ArrayList<>();
                 copyAdjList.get(nextNode).forEach(k -> {
-                    if (copyAdjList.get(k).size() != 0) {
+                    //if (copyAdjList.get(k).size() != 0) {
                         neighborSizes.add(
                             new Pair<>(k, copyAdjList.get(k).size())
                         );
-                    }
+                    //}
                 });
                 //sort from smallest to largest to get smallest adjacency list
                 neighborSizes.sort((a, b) -> Integer.compare(a.second, b.second));
@@ -121,6 +121,8 @@ public class OrderedListCrossover<T> {
                 nextNode = unvisited.get((int) (Math.random() * unvisited.size()));
                 
             }
+            crossed.add(nextNode);
+            unvisited.remove(nextNode);
         }
         return crossed;
     }

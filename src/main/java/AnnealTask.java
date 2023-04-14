@@ -100,6 +100,7 @@ public class AnnealTask implements Runnable, Cloneable {
 
     public void setPath(ArrayList<LocationPoint> newPath) {
         this.stopList = new ArrayList<>(newPath);
+        this.stopList.add(this.stopList.get(0));
         this.originalStopList = newPath;
     }
 
@@ -113,7 +114,7 @@ public class AnnealTask implements Runnable, Cloneable {
      */
     public ArrayList<LocationPoint> getBestOrder() {
         if (!finished) return null;
-        //remove stop
+        //remove last stop
         ArrayList<LocationPoint> retArray = new ArrayList<>(stopList);
         retArray.remove(retArray.size() - 1);
         return retArray;

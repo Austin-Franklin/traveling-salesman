@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -26,9 +28,13 @@ import cooling_functions.CoolingFunction;
 public class AnnealTaskOverallDriver {
     private int totalAnneals = 1000;
     private int totalConcurrentThreads = 5;
+    //this many different concurrent runs of a single given path
     private int totalThreadsPerPath = 10;
+    //this many different paths chosen from crossovers
     private int crossoverNum = 10;
-    private int crossovers = 20;
+    //how many crossovers ran
+    private int crossoverActions = 20;
+    //the top number of paths for each annealing section
     private int topNPathsPerCrossoverRun = 5;
     private GraphHopper hopper;
     private ArrayList<LocationPoint> startPath;
@@ -36,6 +42,7 @@ public class AnnealTaskOverallDriver {
     private double boltzmannFactor;
     private ArrayList<LocationPoint> bestPath;
     private double bestTimeInMillis;
+    // private SpinnerThread spin = new SpinnerThread("Running route optimization");
 
     /**
      * 
@@ -53,28 +60,29 @@ public class AnnealTaskOverallDriver {
 
 
     public void start() {
-        ExecutorService executor = Executors.newFixedThreadPool(totalConcurrentThreads);
+        //spin.start();
+        AtomicReference<ExecutorService> executorRef = new AtomicReference<>(Executors.newFixedThreadPool(totalConcurrentThreads));
         //duplicate starting path
-        ArrayList<ArrayList<LocationPoint>> pathsIntoAnnealTask = new ArrayList<>(Collections.nCopies(crossoverNum, startPath));
+        List<ArrayList<LocationPoint>> pathsIntoAnnealTask = new ArrayList<>(Collections.nCopies(crossoverNum, startPath));
         //shuffle initial list
         pathsIntoAnnealTask.forEach(path -> Collections.shuffle(path.subList(1, path.size() - 1)));
 
         //map each starting path to a thread director
         ArrayList<AnnealTaskThreadDirector> threadDirectorList = pathsIntoAnnealTask.stream()
-            .map(path -> new AnnealTask(hopper, path, totalAnneals/crossovers, coolingFunction, boltzmannFactor))
-            .map(task -> new AnnealTaskThreadDirector(task, executor, totalThreadsPerPath))
+            .map(path -> new AnnealTask(hopper, path, totalAnneals/crossoverActions, coolingFunction, boltzmannFactor))
+            .map(task -> new AnnealTaskThreadDirector(task, executorRef.get(), totalThreadsPerPath))
             .collect(Collectors.toCollection(ArrayList::new));
 
-        for (int i = 0; i < crossovers; ++i) {
+        for (int i = 0; i < crossoverActions; ++i) {
+            System.out.println(i);
             //do annealing for some time
             threadDirectorList.forEach((td) -> td.run());
-            threadDirectorList.forEach((td) -> {
-                try {
-                    td.stop();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
+            executorRef.get().shutdown();
+            try {
+                executorRef.get().awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             //get a list of best runs (still in tasks) from each thread director
             ArrayList<AnnealTask> bestRuns = threadDirectorList.stream()
@@ -85,7 +93,7 @@ public class AnnealTaskOverallDriver {
             bestRuns.sort((a, b) -> Double.compare(a.getBestTime(), b.getBestTime()));
 
             //just grab the best since this is the last iteration
-            if (i - 1 == crossovers) {
+            if (i + 1 == crossoverActions) {
                 bestPath = bestRuns.get(0).getBestOrder();
                 bestTimeInMillis = bestRuns.get(0).getBestTime();
                 break;
@@ -94,7 +102,7 @@ public class AnnealTaskOverallDriver {
             //takes only the top part and converts to paths
             ArrayList<ArrayList<LocationPoint>> bestPaths 
                 = bestRuns
-                .subList(0, Math.min(crossoverNum/2, totalThreadsPerPath))
+                .subList(0, Math.min(crossoverNum/2 + 1, totalThreadsPerPath))
                 .stream()
                 .map(at -> at.getBestOrder())
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -103,8 +111,9 @@ public class AnnealTaskOverallDriver {
 
             //cartesian product the best paths then apply crossover to get a new path trying to preserve as many edges as possible of both parents
             pathsIntoAnnealTask.clear();
+            pathsIntoAnnealTask.add(bestPaths.get(0));
             //a workaround for thread safety i think
-            final AtomicReference<ArrayList<ArrayList<LocationPoint>>> pathsIntoAnnealTaskAtomicReference = new AtomicReference<>(pathsIntoAnnealTask);
+            final AtomicReference<List<ArrayList<LocationPoint>>> pathsIntoAnnealTaskAtomicReference = new AtomicReference<>(pathsIntoAnnealTask);
             bestPaths.stream()
                 .forEach(path1 -> {
                 bestPaths.stream()
@@ -114,10 +123,11 @@ public class AnnealTaskOverallDriver {
                         );
                     });
                 });
+
             
             //get crossoverNum random paths as new inputs
             Collections.shuffle(pathsIntoAnnealTask);
-            pathsIntoAnnealTask = (ArrayList<ArrayList<LocationPoint>>) pathsIntoAnnealTask.subList(0, crossoverNum);
+            pathsIntoAnnealTask = pathsIntoAnnealTask.subList(0, crossoverNum);
 
             //set task's paths as crossover'd ones
             for (int j = 0; j < crossoverNum; ++j) {
@@ -125,9 +135,14 @@ public class AnnealTaskOverallDriver {
                     pathsIntoAnnealTask.get(j)
                 );
             }
+
+            //reset multithreading executor
+            executorRef.set(Executors.newFixedThreadPool(totalConcurrentThreads));
+            threadDirectorList.forEach(td -> td.setExecutor(executorRef.get()));
+
             //resume annealing
         }
-
+        //spin.stop();
     }
 
     public ArrayList<LocationPoint> getBestPath() {
@@ -139,33 +154,39 @@ public class AnnealTaskOverallDriver {
     }
 
 
-    public void setTotalAnneals(int totalAnneals) {
+    public AnnealTaskOverallDriver setTotalAnneals(int totalAnneals) {
         this.totalAnneals = totalAnneals;
+        return this;
     }
 
 
-    public void setTotalConcurrentThreads(int totalConcurrentThreads) {
+    public AnnealTaskOverallDriver setTotalConcurrentThreads(int totalConcurrentThreads) {
         this.totalConcurrentThreads = totalConcurrentThreads;
+        return this;
     }
 
 
-    public void setTotalThreadsPerPath(int totalThreadsPerPath) {
+    public AnnealTaskOverallDriver setTotalThreadsPerPath(int totalThreadsPerPath) {
         this.totalThreadsPerPath = totalThreadsPerPath;
+        return this;
     }
 
 
-    public void setCrossoverNum(int crossoverNum) {
+    public AnnealTaskOverallDriver setCrossoverNum(int crossoverNum) {
         this.crossoverNum = crossoverNum;
+        return this;
     }
 
 
-    public void setCrossovers(int crossovers) {
-        this.crossovers = crossovers;
+    public AnnealTaskOverallDriver setCrossoverActions(int crossovers) {
+        this.crossoverActions = crossovers;
+        return this;
     }
 
 
-    public void setTopNPathsPerCrossoverRun(int topNPathsPerCrossoverRun) {
+    public AnnealTaskOverallDriver setTopNPathsPerCrossoverRun(int topNPathsPerCrossoverRun) {
         this.topNPathsPerCrossoverRun = topNPathsPerCrossoverRun;
+        return this;
     }
 
     

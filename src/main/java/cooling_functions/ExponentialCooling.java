@@ -22,6 +22,6 @@ public class ExponentialCooling implements CoolingFunction {
 
     @Override
     public ExponentialCooling clone()  {
-        return this.clone();
+        return new ExponentialCooling(temp, coolingRate);
     }
 }

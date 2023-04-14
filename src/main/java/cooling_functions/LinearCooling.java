@@ -20,6 +20,6 @@ public class LinearCooling implements CoolingFunction {
 
     @Override
     public LinearCooling clone()  {
-        return this.clone();
+        return new LinearCooling(temp, coolingRate);
     }
 }

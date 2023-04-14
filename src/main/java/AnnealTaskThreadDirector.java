@@ -4,7 +4,6 @@ import java.util.concurrent.*;
 public class AnnealTaskThreadDirector {
     private ExecutorService executor;
     private ArrayList<AnnealTask> taskList;
-    private SpinnerThread spin = new SpinnerThread("Running route optimization");
 
     
     /**
@@ -22,16 +21,18 @@ public class AnnealTaskThreadDirector {
     }
 
     public void run() {
-        spin.start();
         for (AnnealTask task : taskList) {
             executor.submit(task);
         }
     }
 
+    public void join() throws InterruptedException{
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+    }
+
     public void stop() throws InterruptedException {
         executor.shutdown();
         executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-        spin.stop();
     }
 
     //still in AnnealTask since it also stores the time
@@ -40,7 +41,7 @@ public class AnnealTaskThreadDirector {
         taskList.sort((a, b) -> Double.compare(a.getBestTime(), b.getBestTime()));
         
         //map to path
-        return (ArrayList<AnnealTask>) taskList.subList(0, amount);
+        return new ArrayList<>(taskList.subList(0, amount));
     }
 
     /**
@@ -50,4 +51,10 @@ public class AnnealTaskThreadDirector {
     public void setNewPath(ArrayList<LocationPoint> newPath) {
         taskList.forEach(task -> task.setPath(newPath));
     }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    
 }
