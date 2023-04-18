@@ -1,6 +1,7 @@
 import com.graphhopper.reader.osm.Pair;
 import com.graphhopper.util.shapes.GHPoint;
 
+
 /**
  * Holds address info and converts to lat/long coords through OSM,
  * <p>
@@ -29,4 +30,5 @@ public class LocationPoint extends GHPoint{
     public String getAddress() {
         return address;
     }
+
 }

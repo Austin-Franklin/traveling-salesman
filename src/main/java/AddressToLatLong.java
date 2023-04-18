@@ -42,7 +42,7 @@ public class AddressToLatLong {
 
             return new Pair<Double,Double>(lat, lon);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return new Pair<Double, Double>(0.0, 0.0);
     }
