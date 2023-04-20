@@ -36,9 +36,11 @@ public class App {
         ArrayList<LocationPoint> addressList = new  ArrayList<>();
         String origin=null;
 
+        System.out.println("\n\n");
+
         //input starting/ending point
         while(origin==null){
-           origin=getNextAddress("Please enter the origin of the loop:");
+           origin=getNextAddress("Please enter the origin of the loop,\nFor example, if you wish to begin and end at UWF, you can enter\n\"University of West Florida\" or \"11000 University Pkwy, Pensacola\": ");
         }
         addressList.add(new LocationPoint(origin));
 
@@ -49,7 +51,7 @@ public class App {
 
             String nextAddress=getNextAddress("Please enter the next address, or \"n\" when you are finished:");
             if(nextAddress==null){
-                finishedWithInputs=true; //unnecessary tbh
+                finishedWithInputs=true; 
             }
             else{
                 addressList.add(new LocationPoint(nextAddress));
@@ -74,20 +76,7 @@ public class App {
 
         ArrayList<LocationPoint> bestOrder = driver.getBestPath();
 
-        // GHResponse response = hopper.route(
-        //     new GHRequest(finalOrder)
-        //         .setProfile("car")
-        // );
-
-        // if(response.hasErrors()) {
-        //     List<Throwable> errors = response.getErrors();
-        //     for (Throwable error : errors) {
-        //         System.err.println("An error occurred: " + error.getMessage());
-        //     }
-        // }
-
-
-        System.out.print("\n\n" + driver.getBestTimeInMillis()/60000 + " minutes to go from ");
+        System.out.print("\n\n" + (int)driver.getBestTimeInMillis()/60000 + " minutes to go from ");
         bestOrder.forEach(loc -> System.out.print(
             loc.getAddress().split(", ")[0]
             + ", to "
@@ -116,7 +105,8 @@ public class App {
                     return null;
                 }
                 
-                LocationPoint temp = new LocationPoint(input);
+                LocationPoint temp = new LocationPoint(input); 
+                
                 if(temp.getLat()==0){
                     System.out.println("ERROR, ADDRESS NOT RESOLVABLE");
                 }
