@@ -108,13 +108,13 @@ public class App {
                 LocationPoint temp = new LocationPoint(input); 
                 
                 if(temp.getLat()==0){
-                    System.out.println("ERROR, ADDRESS NOT RESOLVABLE");
+                    System.out.println("ERROR, ADDRESS NOT RESOLVABLE\n");
                 }
                 else if(checkResolvable(new LocationPoint(input))){
                     done=true;
                 }
                 else{
-                    System.out.println("ERROR, ADDRESS OUTSIDE OF MAXIMUM RANGE");
+                    System.out.println("ERROR, ADDRESS OUTSIDE OF MAXIMUM RANGE\n");
                 }
 
             }
@@ -133,8 +133,8 @@ public class App {
 
         DistanceCalcEarth sphereCalc= new DistanceCalcEarth();
         
-        //these hardcoded values are the lat and lon we chose as the center of our 
-        //query when downloading the Pensacola.OSM file
+        //these hardcoded values are the lat and lon we chose as the center  
+        //of our query when downloading the Pensacola.OSM file
         if(sphereCalc.calcDist(30.421309,-87.2169149,point.lat,point.lon)>19750){
             return false;
         } 
