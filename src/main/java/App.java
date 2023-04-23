@@ -1,8 +1,11 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import com.graphhopper.*;
 import com.graphhopper.config.*;
+import com.graphhopper.util.*;
+import com.graphhopper.util.shapes.GHPoint;
 
 import cooling_functions.*;
 
@@ -31,18 +34,37 @@ public class App {
         ArrayList<LocationPoint> addressList = Menu.run();
 
         //how many times do the mutations iterate
-        int totalAnnealRuns = 1000 + addressList.size() * 30;
+        int totalAnnealRuns = 100 + addressList.size() * 20;
 
         //how many times do crossovers occur
-        int totalCrossovers = 10 + addressList.size() * 3;
+        int totalCrossovers = 2 + addressList.size() * 2;
         
         //ranges from totalAnnealRuns (tAR) to 1 over the course of the annealing, aka 1 = tAR * exp(-coolingFactor * tAR), rearrange to get ln(tAR) / tAR
-        CoolingFunction coolingFunction = new ExponentialCooling(totalAnnealRuns, Math.log(totalCrossovers) / totalAnnealRuns);
+        CoolingFunction coolingFunction = new ExponentialCooling(1000, Math.log(1000 / 100) / totalAnnealRuns);
+
+        // CoolingFunction cf = coolingFunction.clone();
+
+        // for (int i = 0; i < totalAnnealRuns; ++i) {
+        //     System.out.println(cf.getTemp());
+        //     cf.cool();
+        // }
+
         
         //a 75% chance of taking a longer route at the start due to boltzmann factor (50% wasnt cutting it sometimes)
         //0.75 = exp(-deltaE/kT), rearrange for k it is deltaE / (ln(4/3) * T)
         //initial deltaE would be around 1e6 milliseconds per edge, which is nodes - 1 but since start and end node are the same and occur once in addressList, it is just addressList.size()
-        double boltzmannFactor = 1e6 * addressList.size() / (Math.log(4.0/3.0) * totalAnnealRuns);
+
+        @SuppressWarnings("unchecked")
+        ArrayList<GHPoint> initialPath = (ArrayList<GHPoint>) (ArrayList<? extends GHPoint>) addressList;
+        long initialTime = hopper.route(
+            new GHRequest(initialPath)
+            .setProfile("car")
+            .setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI) //should be slow at start, but speed up after a while
+            .setLocale(Locale.US)
+        ).getBest().getTime();
+
+
+        double boltzmannFactor = initialTime / (Math.log(1.0 / 0.75) * coolingFunction.getTemp());
 
         AnnealTaskOverallDriver driver = new AnnealTaskOverallDriver(
                 hopper,
@@ -52,7 +74,7 @@ public class App {
                 .setTotalAnneals(totalAnnealRuns)
                 .setCrossoverActions(totalCrossovers)
                 .setTotalConcurrentThreads(16)
-                .setCrossoverNum(40);
+                .setCrossoverNum((int) Math.ceil(Math.sqrt(2.0 * addressList.size()))); //scale by sqrt(2) * sqrt(path size)
 
         driver.start();
 

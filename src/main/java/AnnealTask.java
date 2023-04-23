@@ -18,7 +18,6 @@ public class AnnealTask implements Runnable, Cloneable {
     //internally used
     private ArrayList<LocationPoint> stopList;
     private int maxRuns;
-    private int runs = 0;
     private boolean finished = false;
     private CoolingFunction cooling;
     private double boltzmannFactor;
@@ -61,7 +60,7 @@ public class AnnealTask implements Runnable, Cloneable {
             throw new RuntimeException(response.getErrors().toString());
         bestTime = response.getBest().getTime();
         Random random = new SecureRandom(); //random random
-
+        int runs = 0;
         while(runs <= maxRuns) {
             //swap two entries to test if total time goes down
             //the -2 removes the fixed start and stop, +1 shifts it
@@ -74,23 +73,26 @@ public class AnnealTask implements Runnable, Cloneable {
             if (response.hasErrors())
                 throw new RuntimeException(response.getErrors().toString());
 
-
-            long newTime = response.getBest().getTime();
+                long newTime = response.getBest().getTime();
+                // System.out.println("BOLTZ: exp(( -" + newTime + ")/(" + boltzmannFactor + "*" + cooling.getTemp() + ")) = " + Math.exp(( -1.0 * newTime) / (boltzmannFactor * cooling.getTemp())));
                 //if newTime beats bestTime, replace
-            if (newTime < bestTime)
+            if (newTime < bestTime) {
                 bestTime = newTime;
+            }
 
                 /*
                 if the boltzmann factor is lower than a random number, set the higher new time as "best"
                 as temperature goes to 0 exp(-E/kT) goes to 0
                 as temperature goes to inf, exp(-E/kT) goes to 1
                 */
-            else if (Math.exp(-1 * (bestTime - newTime) / (boltzmannFactor * cooling.getTemp())) < Math.random())
+            else if (Math.exp((-1.0 * newTime) / (boltzmannFactor * cooling.getTemp())) > Math.random()) {
                 bestTime = newTime;
+            }
 
                 //reverse the swap since it failed both previous tests
-            else
+            else {
                 Collections.swap(stopList, swapIndex1, swapIndex2);
+            }
             
             cooling.cool();
             runs++;

@@ -30,7 +30,11 @@ public class Menu {
                     path.forEach(v -> System.out.println(v));
                     break;
 
-                case 3: 
+                case 3:
+                    if (path.size() <= 2) {
+                        System.out.println("You only have 1 stop. There is only 1 path to take. You wouldn't need this program for that.");
+                        break;
+                    }
                     running = false;
                     break;
 
