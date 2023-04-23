@@ -1,7 +1,7 @@
-
-
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Downloads an OSM XML file of 20km around <location> and stores it right next to wherever this is running
@@ -29,9 +29,7 @@ public class OSMDownload {
         //     "(._;>;);\n" +
         //     "out body;"
         //     , location);
-        String query = """
-            [out:xml][timeout:25];(node["highway"]["maxspeed"](around:20000,30.421309,-87.2169149);way["highway"]["maxspeed"](around:20000,30.421309,-87.2169149);relation["highway"]["maxspeed"](around:20000,30.421309,-87.2169149);node["highway"="residential"](around:20000,30.421309,-87.2169149);way["highway"="residential"](around:20000,30.421309,-87.2169149);relation["highway"="residential"](around:20000,30.421309,-87.2169149);node["tiger:name_type"](around:20000,30.421309,-87.2169149);way["tiger:name_type"](around:20000,30.421309,-87.2169149);relation["tiger:name_type"](around:20000,30.421309,-87.2169149););(._;>;);out body;
-                """;
+        String query = "[out:xml][timeout:25];(node[\"highway\"][\"maxspeed\"](around:20000,30.421309,-87.2169149);way[\"highway\"][\"maxspeed\"](around:20000,30.421309,-87.2169149);relation[\"highway\"][\"maxspeed\"](around:20000,30.421309,-87.2169149);node[\"highway\"=\"residential\"](around:20000,30.421309,-87.2169149);way[\"highway\"=\"residential\"](around:20000,30.421309,-87.2169149);relation[\"highway\"=\"residential\"](around:20000,30.421309,-87.2169149);node[\"tiger:name_type\"](around:20000,30.421309,-87.2169149);way[\"tiger:name_type\"](around:20000,30.421309,-87.2169149);relation[\"tiger:name_type\"](around:20000,30.421309,-87.2169149););(._;>;);out body;";
         try {
             SpinnerThread spinThread = new SpinnerThread("Downloading graph data ");
             spinThread.start();
@@ -39,9 +37,9 @@ public class OSMDownload {
             URLConnection conn = new URL(url).openConnection();
             conn.setRequestProperty("User-Agent", "Mozilla/5.0");
             InputStream is = conn.getInputStream();
-            FileOutputStream fos = new FileOutputStream(location + ".osm");
-            is.transferTo(fos);
-            fos.close();
+            //FileOutputStream fos = new FileOutputStream(location + ".osm");
+            Files.copy(is, Paths.get(location + ".osm"));
+            //fos.close();
             is.close();
             spinThread.stop();
             System.out.println("");
