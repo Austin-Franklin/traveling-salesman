@@ -1,5 +1,6 @@
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.util.*;
 
 import org.junit.Test;
@@ -12,6 +13,12 @@ import cooling_functions.ExponentialCooling;
 public class AnnealTaskTest {
     @Test
     public void testAnnealTask() {
+        // check if graph file exists, if not, download it
+        File osmFile = new File("Pensacola.osm");
+        if (!osmFile.exists()) {
+            OSMDownload.osmFile("Pensacola");
+        }
+
         GraphHopper hopper = new GraphHopper();
         hopper.setOSMFile("Pensacola.osm");
         hopper.setGraphHopperLocation("GH_folder");

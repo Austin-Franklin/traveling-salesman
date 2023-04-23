@@ -94,6 +94,7 @@ public class Menu {
             try {
                 System.out.print(prompt);
                 input = scnr.nextLine();
+                //System.out.println(input);
 
                 if (input.equals("n")) {
                     return null;
@@ -125,10 +126,6 @@ public class Menu {
 
         // these hardcoded values are the lat and lon we chose as the center of our
         // query when downloading the Pensacola.OSM file
-        if (sphereCalc.calcDist(30.421309, -87.2169149, point.lat, point.lon) > 20000) {
-            return false;
-        }
-
-        return true;
+        return sphereCalc.calcDist(30.421309, -87.2169149, point.lat, point.lon) < 20000.0;
     }
 }

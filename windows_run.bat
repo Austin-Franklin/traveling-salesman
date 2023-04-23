@@ -28,12 +28,12 @@ if not exist "target\traveling-salesman-1.0-SNAPSHOT-jar-with-dependencies.jar" 
         exit /b 1
     )
 
-    mvn install
+    CALL mvn install
 )
 
 REM check if enough memory is available
 set /a total_ram=0
-for /f "tokens=2" %%m in ('systeminfo ^| findstr /C:"Total Physical Memory:"') do set /a total_ram=%%m / 1024
+for /f "tokens=4-5 delims=, " %%a in ('systeminfo ^| findstr /C:"Total Physical Memory:"') do set /a total_ram=%%a * 1000 + %%b
 
 if %total_ram% lss 2048 (
     echo Your system only has %total_ram% MB of RAM, 2048 MB are required.

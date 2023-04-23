@@ -1,5 +1,6 @@
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
@@ -14,6 +15,12 @@ import cooling_functions.ExponentialCooling;
 public class AnnealTaskThreadDirectorTest {
     @Test
     public void test() {
+
+        // check if graph file exists, if not, download it
+        File osmFile = new File("Pensacola.osm");
+        if (!osmFile.exists()) {
+            OSMDownload.osmFile("Pensacola");
+        }
 
         GraphHopper hopper = new GraphHopper();
         hopper.setOSMFile("Pensacola.osm");
