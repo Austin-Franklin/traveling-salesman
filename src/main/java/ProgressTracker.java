@@ -17,8 +17,8 @@ public class ProgressTracker {
      * Prints a progress tracker
      */
     public void start() {
-        System.out.println("May hang at 00% for a bit");
-        System.out.print("Progress... 00%");
+        System.out.println("May hang at 0% for a bit");
+        System.out.print("Progress...  0%");
     }
 
     /**
@@ -33,7 +33,7 @@ public class ProgressTracker {
      * rewrites progress percentage
      */
     public void updatePrint() {
-        System.out.print("\b\b\b" + String.format("%02.0f", currentVal * 100.0 / endVal) + "%");
+        System.out.print("\b\b\b" + String.format("%2.0f", currentVal * 100.0 / endVal) + "%");
     }
 
     /**

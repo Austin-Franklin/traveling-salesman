@@ -37,10 +37,9 @@ public class OSMDownload {
             URLConnection conn = new URL(url).openConnection();
             conn.setRequestProperty("User-Agent", "Mozilla/5.0");
             InputStream is = conn.getInputStream();
-            FileOutputStream fos = new FileOutputStream(location + ".osm");
+            //FileOutputStream fos = new FileOutputStream(location + ".osm");
             Files.copy(is, Paths.get(location + ".osm"));
-            is.transferTo(fos);
-            fos.close();
+            //fos.close();
             is.close();
             spinThread.stop();
             System.out.println("");
