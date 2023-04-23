@@ -60,7 +60,8 @@ public class AnnealTaskOverallDriver {
 
 
     public void start() {
-        //spin.start();
+        ProgressTracker tracker = new ProgressTracker(crossoverActions);
+        tracker.start();
         AtomicReference<ExecutorService> executorRef = new AtomicReference<>(Executors.newFixedThreadPool(totalConcurrentThreads));
         //duplicate starting path
         List<ArrayList<LocationPoint>> pathsIntoAnnealTask = new ArrayList<>(Collections.nCopies(crossoverNum, startPath));
@@ -74,7 +75,7 @@ public class AnnealTaskOverallDriver {
             .collect(Collectors.toCollection(ArrayList::new));
 
         for (int i = 0; i < crossoverActions; ++i) {
-            System.out.println(i);
+            
             //do annealing for some time
             threadDirectorList.forEach((td) -> td.run());
             executorRef.get().shutdown();
@@ -139,10 +140,10 @@ public class AnnealTaskOverallDriver {
             //reset multithreading executor
             executorRef.set(Executors.newFixedThreadPool(totalConcurrentThreads));
             threadDirectorList.forEach(td -> td.setExecutor(executorRef.get()));
-
+            tracker.tick();
             //resume annealing
         }
-        //spin.stop();
+        tracker.end();
     }
 
     public ArrayList<LocationPoint> getBestPath() {

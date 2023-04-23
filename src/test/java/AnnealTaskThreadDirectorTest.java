@@ -40,7 +40,7 @@ public class AnnealTaskThreadDirectorTest {
         LocationPoint fair = new LocationPoint("Pensacola Interstate Fair, Pensacola");
         
 
-        ArrayList<LocationPoint> addressList = new  ArrayList<>(List.of(UWF, cordovaMall, KPNS, oliveBaptist, wahoo, civicCenter, pier, pickens, fair));
+        ArrayList<LocationPoint> addressList = new  ArrayList<>(Arrays.asList(UWF, cordovaMall, KPNS, oliveBaptist, wahoo, civicCenter, pier, pickens, fair));
         
         AnnealTask task = new AnnealTask(hopper, addressList, 100, new ExponentialCooling(1000, 10), 1);
 
