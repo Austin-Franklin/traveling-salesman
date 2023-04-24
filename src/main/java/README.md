@@ -5,6 +5,7 @@ Uses simulated annealing, genetic crossover, and multithreading.
 
 ## Requirements
 
+- At 100MB of free disk space
 - At least 2GB of ram (maybe more)
 - Java 8 or higher
 - Maven
