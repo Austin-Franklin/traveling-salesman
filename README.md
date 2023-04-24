@@ -60,7 +60,7 @@ travel time and the order in which the addresses should be visited.
 ## Authors
 
 - Austin Franklin
-- Jack Lovette
+- Jack Lovett
 
 ## Acknowledgements
 This project uses the GraphHopper(https://www.graphhopper.com/) routing library under the Apache License 2.0.
