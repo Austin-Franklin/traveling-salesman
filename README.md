@@ -25,8 +25,8 @@ Uses simulated annealing, genetic crossover, and multithreading.
 4. Add ` < demo.txt` to input the demo list
 
 ## Usage
-This program uses a map with a 20km radius localized around 30.42°N 87.21°W, 
-which represents Pensacola, Florida and the surrounding area.
+This program uses a graph with a 20km radius localized around 30.42°N 87.21°W, 
+which represents the road network of Pensacola, Florida and the surrounding area.
  
 When entering addresses that may not be unique to Pensacola, 
 it is necessary to include ", Pensacola", or the relavent zip code.
