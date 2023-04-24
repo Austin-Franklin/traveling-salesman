@@ -33,13 +33,14 @@ public class OSMDownload {
         try {
             SpinnerThread spinThread = new SpinnerThread("Downloading graph data ");
             spinThread.start();
+            //setup download
             String url = "https://overpass-api.de/api/interpreter?data=" + URLEncoder.encode(query, "UTF-8");
             URLConnection conn = new URL(url).openConnection();
             conn.setRequestProperty("User-Agent", "Mozilla/5.0");
             InputStream is = conn.getInputStream();
-            //FileOutputStream fos = new FileOutputStream(location + ".osm");
+            
+            //save info
             Files.copy(is, Paths.get(location + ".osm"));
-            //fos.close();
             is.close();
             spinThread.stop();
             System.out.println("");

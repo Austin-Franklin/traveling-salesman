@@ -38,11 +38,11 @@ public class AnnealTaskOverallDriver {
     private int topNPathsPerCrossoverRun = 5;
     private GraphHopper hopper;
     private ArrayList<LocationPoint> startPath;
+    //function used for keeping track of cooling temperature
     private CoolingFunction coolingFunction;
     private double boltzmannFactor;
     private ArrayList<LocationPoint> bestPath;
     private double bestTimeInMillis;
-    // private SpinnerThread spin = new SpinnerThread("Running route optimization");
 
     /**
      * 

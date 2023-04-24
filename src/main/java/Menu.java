@@ -4,10 +4,9 @@ import java.util.Scanner;
 import com.graphhopper.util.DistanceCalcEarth;
 
 public class Menu {
-    public static ArrayList<LocationPoint> run() {
+    public static ArrayList<LocationPoint> run(Scanner scnr) {
         ArrayList<LocationPoint> path = new ArrayList<>();
         boolean running = true;
-        Scanner scnr = new Scanner(System.in);
         System.out.println("Welcome to the Pensacola traveling salesman solver.");
         while (running) {
             System.out.println("\t1. Enter path.\n" +
@@ -32,7 +31,7 @@ public class Menu {
 
                 case 3:
                     if (path.size() <= 2) {
-                        System.out.println("You only have 1 stop. There is only 1 path to take. You wouldn't need this program for that.");
+                        System.out.println("Not enough addresses to run (min 3).\n");
                         break;
                     }
                     running = false;
@@ -50,7 +49,6 @@ public class Menu {
                     System.out.println("Not an option, try again.\n");
             }
         }
-        scnr.close();
         return path;
     }
 
@@ -60,7 +58,7 @@ public class Menu {
 
         // input starting/ending point
         while (origin == null) {
-            origin = getNextAddress("Please enter the origin of the loop:", scnr);
+            origin = getNextAddress("Please enter the origin of the loop: ", scnr);
         }
         path.add(new LocationPoint(origin));
 
@@ -69,7 +67,7 @@ public class Menu {
 
         while (!finishedWithInputs) {
 
-            String nextAddress = getNextAddress("Please enter the next address, or \"n\" when you are finished:", scnr);
+            String nextAddress = getNextAddress("Please enter the next address, or \"n\" when you are finished: ", scnr);
             if (nextAddress == null) {
                 finishedWithInputs = true; // unnecessary tbh
             } else {
